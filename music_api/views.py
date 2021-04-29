@@ -25,7 +25,6 @@ def artists(request):
         if Artist.objects.filter(id= encoded_id).exists(): 
             artist = Artist.objects.filter(id= encoded_id)
             serializer = ArtistSerializer(artist)
-            artist.save()
             return Response(serializer.data, status=status.HTTP_409_CONFLICT)
         artist = Artist.objects.create(id= encoded_id, name=data['name'], age=int(data['age']), albums_url= f'https://tarea2cs.herokuapp.com/music_api/artists/{encoded_id}/albums', tracks_url= f'https://tarea2cs.herokuapp.com/music_api/artists/{encoded_id}/tracks', self_url= f'https://tarea2cs.herokuapp.com/music_api/artists/{encoded_id}')
         if artist: 
@@ -121,6 +120,12 @@ def album_id(request, album_id):
 def albums_tracks(request, album_id):
     if request.method == 'POST':
         data = request.data
+        if not('name' in data.keys()) or not('duration' in data.keys()): # si no vienen los argumentos
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        try:
+            float(data['duration']) # si no es un float
+        except ValueError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         nombre = data['name']
         encoder = f'{nombre}:{album_id}'
         encoded_id = b64encode(encoder.encode()).decode('utf-8')[:22]
