@@ -24,7 +24,7 @@ def artists(request):
             encoded_id = encoded_id[:22]
         if Artist.objects.filter(id= encoded_id).exists(): 
             artist = Artist.objects.filter(id= encoded_id)
-            serializer = ArtistSerializer(artist)
+            serializer = ArtistSerializer(artist[0])
             return Response(serializer.data, status=status.HTTP_409_CONFLICT)
         artist = Artist.objects.create(id= encoded_id, name=data['name'], age=int(data['age']), albums_url= f'https://tarea2cs.herokuapp.com/music_api/artists/{encoded_id}/albums', tracks_url= f'https://tarea2cs.herokuapp.com/music_api/artists/{encoded_id}/tracks', self_url= f'https://tarea2cs.herokuapp.com/music_api/artists/{encoded_id}')
         if artist: 
