@@ -13,18 +13,25 @@ from .serializers import ArtistSerializer, AlbumSerializer, TrackSerializer
 def artists(request):
     if request.method == 'POST':
         data = request.data
-        encoded_id = b64encode(data['name'].encode()).decode('utf-8')[:22]
+        if not('name' in data.keys()) or not('age' in data.keys()): # si no vienen los argumentos
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        try:
+            int(data['age']) # si no es un entero
+        except ValueError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        encoded_id = b64encode(data['name'].encode()).decode('utf-8')
+        if len(encoded_id) > 22:
+            encoded_id = encoded_id[:22]
         if Artist.objects.filter(id= encoded_id).exists(): 
             artist = Artist.objects.filter(id= encoded_id)
             serializer = ArtistSerializer(artist)
             artist.save()
             return Response(serializer.data, status=status.HTTP_409_CONFLICT)
-        artist = Artist.objects.create(id= encoded_id, name=data['name'], age=int(data['age']), albums_url= f'/artists/{encoded_id}/albums', tracks_url= f'/artists/{encoded_id}/tracks', self_url= f'/artists/{encoded_id}')
+        artist = Artist.objects.create(id= encoded_id, name=data['name'], age=int(data['age']), albums_url= f'https://tarea2cs.herokuapp.com/music_api/artists/{encoded_id}/albums', tracks_url= f'https://tarea2cs.herokuapp.com/music_api/artists/{encoded_id}/tracks', self_url= f'https://tarea2cs.herokuapp.com/music_api/artists/{encoded_id}')
         if artist: 
             serializer = ArtistSerializer(artist)
             artist.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'GET':
         artists = Artist.objects.all()
@@ -52,6 +59,8 @@ def artist_id(request, artist_id):
 def artists_albums(request, artist_id):
     if request.method == 'POST':
         data = request.data
+        if not('name' in data.keys()) or not('genre' in data.keys()): # si no vienen los argumentos
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         nombre = data['name']
         encoder = f'{nombre}:{artist_id}'
         encoded_id = b64encode(encoder.encode()).decode('utf-8')[:22]
@@ -61,7 +70,7 @@ def artists_albums(request, artist_id):
             album = Album.objects.filter(id= encoded_id)[0] 
             serializer = AlbumSerializer(album)
             return Response(serializer.data, status=status.HTTP_409_CONFLICT)
-        album = Album.objects.create(id= encoded_id, artist_id= artist_id, name=data['name'], genre=data['genre'], artist_url= f'/artists/{artist_id}', tracks_url= f'/albums/{encoded_id}/tracks', self_url= f'/albums/{encoded_id}')
+        album = Album.objects.create(id= encoded_id, artist_id= artist_id, name=data['name'], genre=data['genre'], artist_url= f'https://tarea2cs.herokuapp.com/music_api/artists/{artist_id}', tracks_url= f'https://tarea2cs.herokuapp.com/music_api/albums/{encoded_id}/tracks', self_url= f'https://tarea2cs.herokuapp.com/music_api/albums/{encoded_id}')
         if album: 
             serializer = AlbumSerializer(album)
             album.save()
@@ -122,7 +131,7 @@ def albums_tracks(request, album_id):
             track = Track.objects.filter(id= encoded_id)[0]
             serializer = TrackSerializer(track)
             return Response(serializer.data, status=status.HTTP_409_CONFLICT)
-        track = Track.objects.create(id= encoded_id, album_id= album_id, name=data['name'], duration=float(data['duration']), times_played= 0, artist_url= f'/artists/{album.artist_id}', album_url= f'/albums/{album_id}', self_url= f'/tracks/{encoded_id}')
+        track = Track.objects.create(id= encoded_id, album_id= album_id, name=data['name'], duration=float(data['duration']), times_played= 0, artist_url= f'https://tarea2cs.herokuapp.com/music_api/artists/{album.artist_id}', album_url= f'https://tarea2cs.herokuapp.com/music_api/albums/{album_id}', self_url= f'https://tarea2cs.herokuapp.com/music_api/tracks/{encoded_id}')
         if track: 
             serializer = TrackSerializer(track)
             track.save()
