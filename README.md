@@ -1,10 +1,13 @@
 ## Tarea 2 Taller de integración
 Url api: https://tarea2cs.herokuapp.com/music_api
 
-### Herramientas: Django (python) y heroku.
+### Herramientas: 
 
-### Objetivo: construir API REST que acepte requests GET, POST, PUT y DELETE. 
+Django (python) y heroku.
 
+### Objetivo: 
+
+Construir API REST que acepte requests GET, POST, PUT y DELETE. 
 Crear/obtener/eliminar artistas, álbumes y canciones, y una vez creados, reproducir estos álbumes y canciones. 
 
 ### Descripción endpoints
